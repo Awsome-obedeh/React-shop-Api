@@ -39,9 +39,23 @@ const verifyTokenAndAuth=(req,res,next)=>{
 
 }
 
-authenticate for admin
+// authenticate for admin
+const verifyTokenAdmin=(req,res,next)=>{
+    verifyToken(req,res, ()=>{
+        if(req.user.isAdmin){
+
+            next();
+        }
+        else{
+            const {isAdmin,id}=req.user
+            res.status(403).json({msg:'Operation Not allowed for you', isAdmin,id})
+        }
+    })
+
+}
 
 module.exports={
     verifyToken,
-    verifyTokenAndAuth
+    verifyTokenAndAuth,
+    verifyTokenAdmin
 }

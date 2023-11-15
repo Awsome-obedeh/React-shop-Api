@@ -18,17 +18,16 @@ const productSchema= new mongoose.Schema({
         required:true,
     },
     categories:{
-        type:Boolean,
-        Array,
+        type:Array,
     },
     size:{
-        type:Boolean,
-        default:false
+        type:String,
+    
     },
     
     color:{
-        type:Boolean,
-        default:false
+        type:String,
+       
     },
     price:{
         type:Number,

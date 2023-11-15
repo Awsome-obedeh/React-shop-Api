@@ -1,23 +1,24 @@
 const express = require('express');
-const bcrypt=require('bcryptjs')
-const { verifyToken,verifyTokenAndAuth } = require('../controllers/auth.controller');
+const bcrypt = require('bcryptjs')
+const { verifyToken, verifyTokenAndAuth, verifyTokenAdmin } = require('../controllers/auth.controller');
 const router = express.Router();
-const User=require('./../models/user.models')
+const User = require('./../models/user.models');
+const userModels = require('./../models/user.models');
 
 // router to update a user
 router.put('/:id', verifyTokenAndAuth, async (req, res) => {
-    if(req.body.password){
-        const hashedPassword=bcrypt.hashSync(req.body.password);
+    if (req.body.password) {
+        const hashedPassword = bcrypt.hashSync(req.body.password);
 
     }
-    try{
-        const {id}=req.params
-        const updatedUser=await User.findByIdAndUpdate(id,
-            {$set:req.body} ,
-            {new:true}   
+    try {
+        const { id } = req.params
+        const updatedUser = await User.findByIdAndUpdate(id,
+            { $set: req.body },
+            { new: true }
         );
         res.status(200).json(updatedUser)
-    }catch(err){
+    } catch (err) {
         res.status(500).json('server Error')
         console.log(err);
     }
@@ -57,4 +58,98 @@ router.put('/:id', verifyTokenAndAuth, async (req, res) => {
     // }
 })
 
+// Delete method for admin
+router.delete('/:id', verifyTokenAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await User.findByIdAndDelete(id);
+        res.status(200).json("user deleted successfully");
+
+
+    } catch (err) {
+        res.status(500).json("server Error")
+        console.log(err);
+    }
+})
+
+// get user
+router.get("/find/:id", verifyTokenAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+        const { password, ...others } = user._doc
+        if (user) {
+            res.status(200).json(others);
+        } else {
+            res.status(500).json("can't perform this operation now")
+        }
+
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json('server Error')
+    }
+
+})
+
+// get all users
+router.get('/', verifyTokenAdmin, async (req, res) => {
+    try {
+        const query = req.query.new;
+        let user = '';
+        // const user=query ? User.find().sort(_id).limit(5) :''
+        if (query) {
+            user = await User.find().sort({ _id: -1 }).limit(5)
+            // const { password, ...others } = user._doc
+            res.status(200).json(user)
+
+        }
+        else {
+            user = await User.find()
+
+            // const { password, ...others } = user._doc
+            res.status(200).json(user)
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json("Server Error")
+    }
+})
+
+// get user stats
+router.get('/stats', verifyTokenAdmin, async (req, res) => {
+    try {
+        // getting user statistics using rge aggregate pipline
+        const date = new Date();
+        const lastYear = new Date(date.setFullYear(date.getFullYear() - 1))
+
+        const userStats = await User.aggregate([
+            // match records where created at is greater tha lastyear
+            { $match: { createdAt: { $gte: lastYear } } },
+
+            // spit out month numbers
+            {
+                $project: {
+                    // take the month number from the createdAt field
+                    month: { $month: "$createdAt" },
+                },
+            },
+
+            // group fields by thier month and sum them
+            {
+                $group: {
+                    _id: "$month",
+                    toatal: { $sum: 1 },
+                },
+            },
+        ]);
+        res.status(200).json(userStats)
+    }
+
+
+    catch (err) {
+        console.log(err);
+        res.status(500).json("Server Error"+ err)
+    }
+})
 module.exports = router
