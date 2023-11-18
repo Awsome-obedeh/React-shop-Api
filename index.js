@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const userRoutes=require('./routes/user')
 const authRoutes=require('./routes/auth')
 const productsRoutes=require('./routes/product')
+const cartRoutes=require('./routes/cart')
+const orderRoutes=require('./routes/order')
 app.use(express.json())
 
 
@@ -22,6 +24,8 @@ async function main() {
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/order', orderRoutes);
 const port=2000 || process.env.PORT
 app.listen(port ,()=>{
     console.log(`app is running on ${port}`);

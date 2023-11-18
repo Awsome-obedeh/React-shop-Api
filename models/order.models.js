@@ -24,12 +24,12 @@ const orderSchema = new mongoose.Schema({
     ],
 
     amount:{
-        type:String,
+        type:Number,
         required:true,
     },
 
    address:{
-        // becasue stripe library will take user address,city, we will set teh address to receive an object
+        // becasue stripe library will take user address,city, we will set the address to receive an object
         type:Object,
         required:true
     },
@@ -42,4 +42,4 @@ const orderSchema = new mongoose.Schema({
     { timestamps: true }
 )
 
-module.exports = mongoose.model('Order', ordSchema)
+module.exports = mongoose.model('Order', orderSchema)

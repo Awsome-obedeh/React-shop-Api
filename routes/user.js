@@ -97,19 +97,30 @@ router.get('/', verifyTokenAdmin, async (req, res) => {
     try {
         const query = req.query.new;
         let user = '';
+        
+        // const removePasswordKey = (array) => {
+        //     return array.map(obj => {
+        //       const { password, ...rest } = obj;
+        //       return rest;
+        //     });
+        //   }
         // const user=query ? User.find().sort(_id).limit(5) :''
         if (query) {
             user = await User.find().sort({ _id: -1 }).limit(5)
-            // const { password, ...others } = user._doc
+            // const userResult=removePasswordKey(user)
+            
             res.status(200).json(user)
 
         }
         else {
             user = await User.find()
-
+           
+            // const userResult=removePasswordKey(user)
+             res.status(200).json(user)
             // const { password, ...others } = user._doc
-            res.status(200).json(user)
+           
         }
+        ;
     } catch (err) {
         console.log(err);
         res.status(500).json("Server Error")
@@ -139,7 +150,7 @@ router.get('/stats', verifyTokenAdmin, async (req, res) => {
             {
                 $group: {
                     _id: "$month",
-                    toatal: { $sum: 1 },
+                    total: { $sum: 1 },
                 },
             },
         ]);
