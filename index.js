@@ -7,6 +7,8 @@ const authRoutes=require('./routes/auth')
 const productsRoutes=require('./routes/product')
 const cartRoutes=require('./routes/cart')
 const orderRoutes=require('./routes/order')
+const paymentRoutes=require('./routes/stripe')
+const cors=require('cors')
 app.use(express.json())
 
 
@@ -20,12 +22,13 @@ async function main() {
 
   // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
 }
-
+// app.use(cors())
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
+app.use('/api/payment', paymentRoutes);
 const port=2000 || process.env.PORT
 app.listen(port ,()=>{
     console.log(`app is running on ${port}`);
